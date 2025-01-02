@@ -82,10 +82,10 @@ class Board{
                
                 if (this.initialBoard && this.initialBoard[i*this.SQUARE_SIZE+j]!=0) {
                     ctx.fillStyle = "blue";
-                    ctx.fillText(this.initialBoard[i*this.SQUARE_SIZE+j].toString(), j * this.SQUARE_WIDTH + this.SQUARE_HORIZONTAL_MIDDLE + offSet.horizontal, i * this.SQUARE_HEIGHT + this.SQUARE_VERTICAL_MIDDLE + offSet.vertical, this.SQUARE_WIDTH);
+                    ctx.fillText(this.initialBoard[i*this.SQUARE_SIZE+j].toString(this.SQUARE_SIZE+1), j * this.SQUARE_WIDTH + this.SQUARE_HORIZONTAL_MIDDLE + offSet.horizontal, i * this.SQUARE_HEIGHT + this.SQUARE_VERTICAL_MIDDLE + offSet.vertical, this.SQUARE_WIDTH);
                 } else if (this.board[i*this.SQUARE_SIZE+j]!=0) {
                     ctx.fillStyle = "gray";
-                    ctx.fillText(this.board[i*this.SQUARE_SIZE+j].toString(), j * this.SQUARE_WIDTH + this.SQUARE_HORIZONTAL_MIDDLE + offSet.horizontal, i * this.SQUARE_HEIGHT + this.SQUARE_VERTICAL_MIDDLE + offSet.vertical, this.SQUARE_WIDTH);
+                    ctx.fillText(this.board[i*this.SQUARE_SIZE+j].toString(this.SQUARE_SIZE+1), j * this.SQUARE_WIDTH + this.SQUARE_HORIZONTAL_MIDDLE + offSet.horizontal, i * this.SQUARE_HEIGHT + this.SQUARE_VERTICAL_MIDDLE + offSet.vertical, this.SQUARE_WIDTH);
                 }
             }
         }
