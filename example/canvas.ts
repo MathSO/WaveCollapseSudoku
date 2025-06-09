@@ -3,63 +3,57 @@ const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 
 const CANVAS_HEIGHT = canvas.height;
 const CANVAS_WIDTH = canvas.width;
+let SCALE_HORIZONTAL = canvas.clientWidth/CANVAS_WIDTH;
+let SCALE_VERTICAL = canvas.clientHeight/CANVAS_HEIGHT;
 
-const b:number[] = [];
-// -----------  -----------
-// b.push(1,0,0,  0,0,0,  4,9,0);
-// b.push(0,0,0,  0,0,0,  7,0,0);
-// b.push(3,9,6,  0,5,0,  0,0,0);
+const board = new Board(3, {width: CANVAS_WIDTH, height: CANVAS_HEIGHT});
 
-// b.push(6,0,0,  9,0,0,  0,0,0);
-// b.push(0,0,0,  0,7,0,  0,0,0);
-// b.push(0,4,9,  0,0,1,  8,2,0);
+canvas.onmousedown = mouseClicked
+document.onkeydown = keyPressed
 
-// b.push(4,0,0,  0,8,7,  0,0,0);
-// b.push(0,0,3,  0,0,2,  0,0,5);
-// b.push(0,0,0,  0,0,0,  0,0,0);
+function keyPressed(event: KeyboardEvent):void {
+    let key:number;
+    if (key = Number.parseInt(event.key, 10)) {
+        board.setIntialBoardValue(key);
 
-// -----------  -----------
-// b.push(0,4,0,  0,0,8,  0,1,0);
-// b.push(0,0,0,  3,0,0,  0,0,0);
-// b.push(0,0,8,  0,9,0,  0,5,0);
+        return;
+    }
 
-// b.push(0,0,0,  0,0,0,  3,0,5);
-// b.push(9,0,0,  0,5,0,  7,2,0);
-// b.push(6,2,0,  0,7,0,  0,9,0);
+    console.log(event.key)
+    if (event.ctrlKey && event.key === "Enter") {
+        if (board.isSolving) {
+            board.stopSolving();
+        } else {
+            board.startSolving();
+        }
 
-// b.push(0,5,9,  0,0,0,  0,0,0);
-// b.push(0,0,0,  2,1,0,  0,0,0);
-// b.push(0,0,0,  6,0,0,  4,0,0);
+        return;
+    }
 
-// ----------- -----------
-b.push(0,0,0,  0,3,0,  0,0,7);
-b.push(0,4,0,  5,0,0,  0,0,0);
-b.push(2,0,1,  0,0,0,  5,0,0);
+    if (event.key === "Escape") {
+        if (!board.isSolving) {
+            board.resetSolving();
+        }
+        
+        return;
+    }
 
-b.push(3,0,0,  0,1,0,  0,0,8);
-b.push(5,0,6,  0,2,0,  0,3,0);
-b.push(0,7,9,  6,0,0,  0,0,0);
+    if (event.ctrlKey && event.key === "ArrowUp") {
+        gameLoop.doubleTicksPerSecond();
+    }   
+    if (event.ctrlKey && event.key === "ArrowDown") {
+        gameLoop.halveTicksPerSecond();
+    }
+}
 
-b.push(0,0,0,  0,7,0,  0,5,0);
-b.push(8,0,0,  0,0,0,  0,6,0);
-b.push(0,3,0,  0,0,0,  0,0,9);
-
-// ----------- Open -----------
-// b.push(1,2,0,  0,3,4,  0,0,0);
-// b.push(0,0,0,  0,0,0,  0,0,0);
-// b.push(0,0,0,  0,0,0,  0,0,0);
-
-// b.push(0,0,0,  0,0,0,  0,0,0);
-// b.push(0,0,0,  0,0,0,  0,0,0);
-// b.push(0,0,0,  0,0,0,  0,0,0);
-
-// b.push(0,0,0,  0,0,0,  0,0,0);
-// b.push(0,0,0,  0,0,0,  0,0,0);
-// b.push(0,0,0,  0,0,0,  0,0,0);
-
-const board = new Board(3, {width: CANVAS_WIDTH, height: CANVAS_HEIGHT}, b);
+function mouseClicked(event: MouseEvent) {
+    board.setSelected(event.offsetX/SCALE_HORIZONTAL, event.offsetY/SCALE_VERTICAL);
+}
 
 function draw(): void {
+    SCALE_HORIZONTAL = canvas.clientWidth/CANVAS_WIDTH;
+    SCALE_VERTICAL = canvas.clientHeight/CANVAS_HEIGHT;
+
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     board.draw(ctx, {vertical:0, horizontal:0});
 }
@@ -68,5 +62,5 @@ function update(clockTime: number): void {
     board.solve();
 }
 
-const gameLoop = new GameLoop(500, draw, update);
+const gameLoop = new GameLoop(1, draw, update);
 gameLoop.run();

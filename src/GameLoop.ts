@@ -20,7 +20,7 @@ class GameLoop{
         this.lastFrameTime = 0;
     }
 
-    draw = (clockTime:number):void => {
+    private draw = (clockTime:number):void => {
         for (;this.lastFrameTime + this.timePerTicks <= clockTime;this.lastFrameTime += this.timePerTicks) {
             this.updateFunction(this.lastFrameTime);
         }
@@ -30,18 +30,26 @@ class GameLoop{
         this.animationFrameID = requestAnimationFrame(this.draw);
     }
     
-    run():void {
+    public run():void {
         if (!this.isRunning) {
             this.isRunning = true;
             this.animationFrameID = requestAnimationFrame(this.draw);
         }
     }
     
-    stop():void {
+    public stop():void {
         if (this.animationFrameID) {
             cancelAnimationFrame(this.animationFrameID);
         }
 
         this.isRunning = false;
+    }
+
+    public doubleTicksPerSecond() {
+        this.timePerTicks >>= 1;
+    }
+
+    public halveTicksPerSecond() {
+        this.timePerTicks <<= 1;
     }
 }

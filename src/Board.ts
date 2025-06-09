@@ -1,3 +1,7 @@
+interface Scale{
+    
+}
+
 interface Dimension{
     width:number,
     height:number
@@ -30,13 +34,16 @@ class Board{
 
     private board: number[];
     private initialBoard: number[]|undefined;
+    private startedSolve: boolean;
+    get isSolving():boolean { return this.startedSolve }
 
-    private notCollapsed: number[] = [];
+    private notCollapsed: number[];
 
     private solveStack: SolveObject[] = [];
     private tried: Map<string,boolean> = new Map<string, boolean>();
+    private selectedValue:number|undefined = undefined;
 
-    constructor(max_number: number, dimension:Dimension, initialBoard?:number[]) {
+    constructor(max_number: number, dimension:Dimension, startSolving?:boolean, initialBoard?:number[]) {
         this.HEIGHT = dimension.height;
         this.WIDTH = dimension.width;
 
@@ -51,6 +58,9 @@ class Board{
         this.board = initialBoard ?? this.initBoard();
         this.initialBoard = initialBoard?.slice();
 
+        this.startedSolve = startSolving ?? false;
+
+        this.notCollapsed = [];
         this.initNotCollapsed();
     }
 
@@ -59,6 +69,7 @@ class Board{
     }
 
     private initNotCollapsed() {
+        this.notCollapsed = [];
         for (let i = 0; i < this.SQUARE_SIZE; i++) {
             for (let j = 0; j < this.SQUARE_SIZE; j++) {
                 const n = (i*this.SQUARE_SIZE)+j;
@@ -69,7 +80,7 @@ class Board{
         }
     }
 
-    draw(ctx:CanvasRenderingContext2D, offSet:OffSet):void {
+    public draw(ctx:CanvasRenderingContext2D, offSet:OffSet):void {
         ctx.lineWidth = 1;
         ctx.font = `${(this.HEIGHT / this.SQUARE_SIZE) - 15}px/${(this.HEIGHT / this.SQUARE_SIZE)}px Times New Roman`;
         ctx.textAlign = "center";
@@ -97,12 +108,25 @@ class Board{
             }
         }
 
+        ctx.lineWidth = 3;
+        if (this.selectedValue !== undefined) {
+            ctx.strokeStyle = "red";
+            const i = Math.floor(this.selectedValue / this.SQUARE_SIZE);
+            const j = this.selectedValue % this.SQUARE_SIZE;
+
+            ctx.strokeRect(j * this.SQUARE_WIDTH + offSet.horizontal, i * this.SQUARE_HEIGHT + offSet.vertical, this.SQUARE_WIDTH, this.SQUARE_HEIGHT);
+        }
+
         ctx.strokeStyle = "darkgreen"
         ctx.lineWidth = 10;
         ctx.strokeRect(offSet.horizontal, offSet.vertical, this.WIDTH, this.HEIGHT);
     }
 
-    solve():boolean {
+    public solve():boolean {
+        if (!this.startedSolve) {
+            return false
+        }
+
         if (this.notCollapsed.length == 0) {
             return true;
         }
@@ -185,5 +209,48 @@ class Board{
         collapsed.forEach((el, i) => {if(i != 0 && !el) weight.push(i)});
 
         return weight;
+    }
+
+    public setSelected(x:number, y:number):void {
+        this.selectedValue = Math.floor(y / this.SQUARE_HEIGHT) * this.SQUARE_SIZE + Math.floor(x / this.SQUARE_WIDTH);
+        if (this.selectedValue < 0 || this.selectedValue > this.board.length) {
+            this.selectedValue = undefined;
+        }
+    }
+    public unsetSelected():void {
+        this.selectedValue = undefined;
+    }
+
+    public setIntialBoardValue(val:number) {
+        if (this.selectedValue === undefined) {
+            return;
+        }
+
+        if (this.initialBoard === undefined) {
+            this.initialBoard = this.initBoard();
+        }
+
+        this.board[this.selectedValue] = val;
+        this.initialBoard[this.selectedValue] = val;
+
+        this.initNotCollapsed();
+    }
+
+    public startSolving():void {
+        this.startedSolve = true;
+    }
+
+    public stopSolving():void {
+        this.startedSolve = false;
+    }
+
+    public resetSolving(): void {
+        if (this.initialBoard === undefined) {
+            this.board = this.initBoard();
+            return;
+        }
+
+        this.board = this.initialBoard.slice();
+        this.initNotCollapsed();
     }
 }
